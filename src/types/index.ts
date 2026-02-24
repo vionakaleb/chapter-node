@@ -11,4 +11,6 @@ export interface TrackedBook extends Book {
   progress: number;
   status: BookStatus;
   startedAt?: string;
+  currentPage?: number;
+  totalPages?: number;
 }

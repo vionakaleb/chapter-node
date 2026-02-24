@@ -4,7 +4,12 @@ import type { Book, TrackedBook, BookStatus } from "../types";
 interface TrackerSlice {
   activeBooks: TrackedBook[];
   addBookToTracker: (book: TrackedBook) => void;
-  updateProgress: (id: string, progress: number) => void;
+  updateProgress: (
+    id: string,
+    progress: number,
+    currentPage?: number,
+    totalPages?: number,
+  ) => void;
   updateStatus: (id: string, status: BookStatus) => void;
   removeBook: (id: string) => void;
 }
@@ -37,8 +42,11 @@ export const useAppStore = create<AppState>((set) => ({
       id: "1",
       title: "Thinking, Fast and Slow",
       author: "Daniel Kahneman",
-      coverUrl: "https://via.placeholder.com/120x180",
+      coverUrl:
+        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=120&auto=format&fit=crop",
       progress: 42,
+      currentPage: 210,
+      totalPages: 499,
       status: "READING",
     },
   ],
@@ -46,16 +54,26 @@ export const useAppStore = create<AppState>((set) => ({
   addBookToTracker: (bookData) =>
     set((state) => ({
       activeBooks: [
-        { ...bookData, id: Math.random().toString(36).substring(7) },
+        {
+          ...bookData,
+          id: Math.random().toString(36).substring(7),
+          currentPage: 0,
+          totalPages: 300,
+        },
         ...state.activeBooks,
       ],
     })),
 
-  updateProgress: (id, progress) =>
+  updateProgress: (id, progress, currentPage, totalPages) =>
     set((state) => ({
       activeBooks: state.activeBooks.map((b) =>
         b.id === id
-          ? { ...b, progress: Math.min(Math.max(progress, 0), 100) }
+          ? {
+              ...b,
+              progress: Math.min(Math.max(progress, 0), 100),
+              currentPage,
+              totalPages: totalPages ?? b.totalPages,
+            }
           : b,
       ),
     })),

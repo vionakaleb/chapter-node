@@ -10,11 +10,17 @@ interface ActiveBookCardProps {
 export default function ActiveBookCard({ book }: ActiveBookCardProps) {
   const { updateProgress, removeBook, updateStatus, openChat } = useAppStore();
   const [isEditingProgress, setIsEditingProgress] = useState(false);
-  const [tempProgress, setTempProgress] = useState(book.progress);
+  const [tempPage, setTempPage] = useState(book.currentPage || book.progress);
+  const [tempTotalPages, setTempTotalPages] = useState(book.totalPages || 100);
 
   const handleSaveProgress = () => {
-    updateProgress(book.id, tempProgress);
-    if (tempProgress === 100) {
+    const total = tempTotalPages > 0 ? tempTotalPages : 1;
+    const finalPage = Math.min(Math.max(tempPage, 0), total);
+    const newProgress = Math.round((finalPage / total) * 100);
+
+    updateProgress(book.id, newProgress, finalPage, total);
+
+    if (newProgress >= 100) {
       updateStatus(book.id, "READ");
     }
     setIsEditingProgress(false);
@@ -49,21 +55,48 @@ export default function ActiveBookCard({ book }: ActiveBookCardProps) {
         {/* Progress Section */}
         <div className="mt-4">
           {isEditingProgress ? (
-            <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <div className="flex items-center gap-3 bg-slate-950 p-3 rounded-lg border border-slate-800">
+              {/* Slider Input */}
               <input
                 type="range"
                 min="0"
-                max="100"
-                value={tempProgress}
-                onChange={(e) => setTempProgress(parseInt(e.target.value))}
-                className="flex-1 accent-indigo-600"
+                max={tempTotalPages}
+                value={tempPage}
+                onChange={(e) => setTempPage(parseInt(e.target.value) || 0)}
+                className="flex-1 accent-indigo-500 cursor-pointer"
               />
-              <span className="text-sm font-bold text-slate-700 w-12 text-right">
-                {tempProgress}%
-              </span>
+
+              {/* Number Input */}
+              <div className="flex items-center gap-1 text-sm font-bold text-white bg-slate-900 border border-slate-700 rounded-md px-2 py-1 focus-within:border-indigo-500 transition-colors">
+                <input
+                  type="number"
+                  min="0"
+                  max={tempTotalPages}
+                  value={tempPage}
+                  onChange={(e) => setTempPage(parseInt(e.target.value) || 0)}
+                  className="w-10 bg-transparent text-right focus:outline-none appearance-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+
+                <span className="text-slate-500 font-medium select-none">
+                  /
+                </span>
+
+                {/* Total Pages Input */}
+                <input
+                  type="number"
+                  min="1"
+                  value={tempTotalPages}
+                  onChange={(e) =>
+                    setTempTotalPages(parseInt(e.target.value) || 0)
+                  }
+                  className="w-10 bg-transparent text-slate-400 focus:text-white transition-colors focus:outline-none appearance-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+              </div>
+
+              {/* Save Button */}
               <button
                 onClick={handleSaveProgress}
-                className="bg-indigo-600 text-white p-1.5 rounded hover:bg-indigo-700 transition-colors"
+                className="bg-indigo-600 text-white p-1.5 rounded-md hover:bg-indigo-500 transition-colors shadow-sm shrink-0"
               >
                 <CheckCircle size={16} />
               </button>
