@@ -25,29 +25,29 @@ export default function BookDetailsModal() {
       setError("");
       setBookData(null);
 
-      // Fetching from Google Books API using the title and author
       const query = encodeURIComponent(
-        `intitle:${selectedDetailsBook.title} inauthor:${selectedDetailsBook.author}`,
+        `${selectedDetailsBook.title} ${selectedDetailsBook.author}`,
       );
 
-      fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1`,
-      )
+      fetch(`https://openlibrary.org/search.json?q=${query}&limit=1`, {
+        headers: {
+          "User-Agent": "ChapterNode/0.1 (veziovusk@gmail.com)",
+        },
+      })
         .then((res) => res.json())
         .then((data) => {
-          if (data.items && data.items.length > 0) {
-            const info = data.items[0].volumeInfo;
-            setBookData({
-              description:
-                info.description || "No description available for this book.",
-              pageCount: info.pageCount,
-              publishedDate: info.publishedDate,
-              categories: info.categories,
-              averageRating: info.averageRating,
-            });
-          } else {
+          const doc = data.docs?.[0];
+          if (!doc) {
             setError("Could not find extended details for this book.");
+            return;
           }
+          setBookData({
+            description: doc.first_sentence?.[0] ?? "No description available.",
+            pageCount: doc.number_of_pages_median,
+            publishedDate: doc.first_publish_year?.toString(),
+            categories: doc.subject?.slice(0, 1),
+            averageRating: undefined, // Open Library doesn't expose this
+          });
         })
         .catch(() => setError("Failed to connect to the book database."))
         .finally(() => setLoading(false));

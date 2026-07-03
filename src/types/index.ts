@@ -8,9 +8,14 @@ export interface Book {
 }
 
 export interface TrackedBook extends Book {
-  progress: number;
   status: BookStatus;
-  startedAt?: string;
+  progress: number; // 0–100
   currentPage?: number;
   totalPages?: number;
+  startedAt?: string;
+  finishedAt?: string;
+  abandonedAt?: string;
+  rating?: number;
+  subjects?: string[]; // from Open Library
+  workKey?: string; // e.g. "/works/OL45804W"
 }
