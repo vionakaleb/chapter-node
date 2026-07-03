@@ -18,4 +18,5 @@ export interface TrackedBook extends Book {
   rating?: number;
   subjects?: string[]; // from Open Library
   workKey?: string; // e.g. "/works/OL45804W"
+  averageRating: string;
 }

@@ -18,7 +18,7 @@ interface ActiveBookCardProps {
 export default function ActiveBookCard({ book }: ActiveBookCardProps) {
   const { updateProgress, removeBook, updateStatus, openChat, rateBook } =
     useAppStore();
-    
+
   const [isEditingProgress, setIsEditingProgress] = useState(false);
   const [tempPage, setTempPage] = useState(book.currentPage ?? 0); // unit bug fix
   const [tempTotalPages, setTempTotalPages] = useState(book.totalPages || 100);
@@ -33,6 +33,8 @@ export default function ActiveBookCard({ book }: ActiveBookCardProps) {
 
     setIsEditingProgress(false);
   };
+
+  console.log(book, "book");
 
   return (
     <div className="bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-800 flex gap-6 items-center transition-all hover:border-slate-700 group">

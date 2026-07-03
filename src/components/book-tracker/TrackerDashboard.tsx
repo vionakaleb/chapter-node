@@ -29,11 +29,18 @@ const SHELVES: { value: BookStatus; label: string; emptyHint: string }[] = [
   },
 ];
 
+const newBookDefault = {
+  title: "",
+  author: "",
+  averageRating: "",
+  coverUrl: "",
+};
+
 export default function TrackerDashboard() {
-  const { activeBooks, addBookToTracker } = useAppStore();
+  const { activeBooks, addBookToTracker, enrichBook } = useAppStore();
   const [shelf, setShelf] = useState<BookStatus>("READING");
   const [isAdding, setIsAdding] = useState(false);
-  const [newBook, setNewBook] = useState({ title: "", author: "" });
+  const [newBook, setNewBook] = useState(newBookDefault);
 
   const counts = useMemo(
     () =>
@@ -49,31 +56,33 @@ export default function TrackerDashboard() {
     [activeBooks, shelf],
   );
 
-// src/components/book-tracker/TrackerDashboard.tsx  (handleAddSubmit)
-const handleAddSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!newBook.title || !newBook.author) return;
+  const handleAddSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newBook.title || !newBook.author) return;
 
-  const book: TrackedBook = {
-    id: crypto.randomUUID(),
-    title: newBook.title,
-    author: newBook.author,
-    coverUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(newBook.title)}&background=random&size=200`,
-    progress: 0,
-    status: shelf === "READ" || shelf === "DNF" ? "TO_READ" : shelf,
+    // enrich in the background, don't await in the UI
+    lookupBook(newBook.title, newBook.author)
+      .then((enriched) => {
+        const book: TrackedBook = {
+          ...enriched,
+          title: newBook.title,
+          author: newBook.author,
+          id: crypto.randomUUID(),
+          progress: 0,
+          status: shelf === "READ" || shelf === "DNF" ? "TO_READ" : shelf,
+        };
+        console.log(enriched, "enriched");
+        console.log(newBook, "newBook");
+        console.log(book, "book");
+
+        addBookToTracker(book);
+        setNewBook(book);
+        setIsAdding(false);
+
+        if (enriched) enrichBook(book.id, enriched.subjects, enriched.workKey);
+      })
+      .catch(() => {}); // silent fail, enrichment is best-effort
   };
-
-  addBookToTracker(book);
-  setNewBook({ title: "", author: "" });
-  setIsAdding(false);
-
-  // enrich in the background, don't await in the UI
-  lookupBook(newBook.title, newBook.author)
-    .then((enriched) => {
-      if (enriched) enrichBook(book.id, enriched.subjects, enriched.workKey);
-    })
-    .catch(() => {}); // silent fail, enrichment is best-effort
-};
 
   const activeShelf = SHELVES.find((s) => s.value === shelf)!;
 
