@@ -5,7 +5,7 @@ export interface EnrichedBook {
   workKey: string;
   subjects: string[];
   coverUrl?: string;
-  averageRating?: number;
+  averageRating?: number | undefined;
 }
 
 export interface Recommendation {

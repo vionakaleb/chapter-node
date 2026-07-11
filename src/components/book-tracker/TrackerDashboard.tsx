@@ -32,8 +32,8 @@ const SHELVES: { value: BookStatus; label: string; emptyHint: string }[] = [
 const newBookDefault = {
   title: "",
   author: "",
-  averageRating: "",
-  coverUrl: "",
+  // averageRating: undefined as number | undefined,
+  // coverUrl: "",
 };
 
 export default function TrackerDashboard() {

@@ -4,7 +4,7 @@ export interface Book {
   id: string;
   title: string;
   author: string;
-  coverUrl: string;
+  coverUrl?: string | undefined;
 }
 
 export interface TrackedBook extends Book {
@@ -18,7 +18,11 @@ export interface TrackedBook extends Book {
   rating?: number;
   subjects?: string[]; // from Open Library
   workKey?: string; // e.g. "/works/OL45804W"
-  averageRating: string;
+  averageRating?: number | undefined;
+  id: string;
+  title: string;
+  author: string;
+  coverUrl?: string | undefined;
 }
 
 export interface AuthUser {
