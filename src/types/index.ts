@@ -20,3 +20,9 @@ export interface TrackedBook extends Book {
   workKey?: string; // e.g. "/works/OL45804W"
   averageRating: string;
 }
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  displayName?: string;
+}

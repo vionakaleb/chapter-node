@@ -9,7 +9,7 @@ import {
 } from "../../services/recommenderApi";
 
 export default function FypFeed() {
-  const { activeBooks } = useAppStore();
+  const { activeBooks, userId } = useAppStore();
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +19,11 @@ export default function FypFeed() {
     setLoading(true);
     setError(null);
     try {
-      const results = await fetchRecommendations(activeBooks);
+      const results = await fetchRecommendations(
+        activeBooks,
+        10,
+        userId ?? undefined,
+      );
       setRecommendations(results);
     } catch {
       setError("Couldn't load recommendations right now.");
@@ -30,7 +34,7 @@ export default function FypFeed() {
 
   useEffect(() => {
     load();
-    console.log(recommendations, "recommendations")
+    console.log(recommendations, "recommendations");
   }, []); // only on mount; user controls refresh manually
 
   return (

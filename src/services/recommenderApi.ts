@@ -43,11 +43,12 @@ export async function fetchRecommendations(
     workKey?: string;
   }[],
   limit = 10,
+  userId?: string,
 ): Promise<Recommendation[]> {
   const res = await fetch(`${BASE_URL}/api/recommendations`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ library, limit }),
+    body: JSON.stringify({ library, limit, userId }),
   });
   if (!res.ok) throw new Error(`Recommendations failed: ${res.status}`);
   const data = await res.json();
